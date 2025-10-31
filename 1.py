@@ -45,6 +45,7 @@ class Enemy(GameSprite):
         self.rc = randint(15, 20)
         self.startt = tm.time()
         self.plb = 20
+
     def update(self):
         if self.plb == 20:
             self.rect.x += self.speedx
@@ -64,7 +65,12 @@ class Enemy(GameSprite):
         if self.plb == 20:
             super().reset()
         else:
-            window.blit(transform.scale(image.load('взрыв.png'), (self.plb*10, self.plb*10)), (self.rect.x-self.plb*5, self.rect.y-self.plb*5))
+            a = transform.scale(image.load('взрыв.png'), (self.plb*10, self.plb*10))
+            aaa = a.get_rect()
+            self.aaa = aaa
+            aaa.x = self.rect.x-self.plb*5
+            aaa.y = self.rect.y-self.plb*5
+            window.blit(transform.scale(a, (aaa.x, aaa.y)))
             self.plb += 1
             if self.plb == 20:
                 self.nagibator()
@@ -86,6 +92,8 @@ c = Enemy('крипер.png', 3, 225, 225)
 font = font.Font(None, 30)
 c1text = font.render('Счёт слева: '+str(count1), True, (76,81,74))
 c2text = font.render('Счёт справа: '+str(count2), True, (76,81,74))
+end1 = font.render('Победила левая команда со счётом:' + str(count1) + '|' + str(count2), True, (76,81,74))
+end2 = font.render('Победила правая команда со счётом:' + str(count2) + '|' + str(count1), True, (76,81,74))
 game = True
 clock = time.Clock()
 while game:
@@ -96,7 +104,6 @@ while game:
     window.blit(c2text, (330, 20))
     keys_pressed = key.get_pressed()
     
-
     p1.reset()
     p2.reset()
     p1.update()
@@ -105,9 +112,16 @@ while game:
     c.update()
     c.check()
     
+    if plb < 20:
+        if sprite.collide_rect(aaa, p1):
+            count1 -= 3
+        if sprite.collide_rect(aaa, p2):
+            count2 -= 3
+
     if sprite.collide_rect(c, p1):
        c.speedx *= -1 
        c.rect.x += c.speed
+
     if sprite.collide_rect(c, p2):
        c.speedx *= -1 
        c.rect.x -= c.speed
@@ -122,8 +136,12 @@ while game:
         c2text = font.render('Счёт справа: '+str(count2), True, (76,81,74))
         c.nagibator()
 
+    if count1 > count2 and count1 > 15:
+        window.blit(end1, (250, 250))
+
+    if count2 > count1 and count2 > 15:
+        window.blit(end2, (250, 250))
 
     for e in event.get():
-        if e.type == QUIT:
+        if e.type == QUIT:)
             game = False
-
